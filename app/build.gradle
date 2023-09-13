@@ -26,6 +26,14 @@ android {
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
     }
+signingConfigs {
+    release {
+        storeFile file('jwt.jks')
+        storePassword"20230118"
+        keyAlias"demo"
+        keyPassword"20230118"
+    }
+}
 
     buildTypes {
         debug {
@@ -37,6 +45,7 @@ android {
             }
         }
         release {
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             minifyEnabled true
 
