@@ -43,6 +43,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.github.tvbox.osc.base.App;
+import com.github.tvbox.osc.util.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -55,6 +56,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -201,10 +203,10 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                 try {
                     libLoader.loadLibrary("ijkffmpeg");
                     libLoader.loadLibrary("ijksdl");
+                    libLoader.loadLibrary("ijkplayer");
                 } catch (Throwable throwable) {
 
                 }
-                libLoader.loadLibrary("ijkplayer");
                 mIsLibLoaded = true;
 
             }
@@ -404,18 +406,19 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
      * Sets the data source (file-path or http/rtsp URL) to use.
      *
      * @param path the path of the file, or the http/rtsp URL of the stream you
-     *             want to play
+     * want to play
      * @throws IllegalStateException if it is called in an invalid state
      *
-     *                               <p>
-     *                               When <code>path</code> refers to a local file, the file may
-     *                               actually be opened by a process other than the calling
-     *                               application. This implies that the pathname should be an
-     *                               absolute path (as any other process runs with unspecified
-     *                               current working directory), and that the pathname should
-     *                               reference a world-readable file.
+     * <p>
+     * When <code>path</code> refers to a local file, the file may
+     * actually be opened by a process other than the calling
+     * application. This implies that the pathname should be an
+     * absolute path (as any other process runs with unspecified
+     * current working directory), and that the pathname should
+     * reference a world-readable file.
      */
     private boolean over = false;
+
     @Override
     public void setDataSource(String path)
             throws IOException, IllegalArgumentException, SecurityException, IllegalStateException {
@@ -464,7 +467,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     }
 
     public static String xml2ffconcat(String str) {
-        String str2 = App.getInstance().getExternalCacheDir().getPath() + "/" + System.currentTimeMillis() + ".ffconcat";
+        String str2 = FileUtils.getExternalCachePath() + "/" + System.currentTimeMillis() + ".ffconcat";
         try {
             File file = new File(str2);
             if (!file.exists()) {
@@ -483,6 +486,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
         }
         return str2;
     }
+
     /**
      * Sets the data source (file-path or http/rtsp URL) to use.
      *
@@ -1114,23 +1118,8 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                     if (msg.obj == null) {
                         player.notifyOnTimedText(null);
                     } else {
-//                        IjkTimedText text = new IjkTimedText(new Rect(0, 0, 1, 1), (String) msg.obj);
-//                        player.notifyOnTimedText(text);
-                        if (msg.arg1 == 0) {// normal
-                            IjkTimedText text = new IjkTimedText(new Rect(0, 0, 1, 1), (String) msg.obj);
-                            player.notifyOnTimedText(text);
-                        } else if (msg.arg1 == 1) { // ass
-                            IjkTimedText text = new IjkTimedText(new Rect(0, 0, 1, 1), (String) msg.obj);
-                            player.notifyOnTimedText(text);
-                        } else if (msg.arg1 == 2) { // bitmap
-                            if (msg.arg2 > 0 && msg.obj instanceof int[] && ((int[]) msg.obj).length == msg.arg2) {
-                                IjkTimedText text = new IjkTimedText((int[]) msg.obj);
-                                player.notifyOnTimedText(text);
-                            } else {
-                                IjkTimedText text = new IjkTimedText(null, "");
-                                player.notifyOnTimedText(text);
-                            }
-                        }
+                        IjkTimedText text = new IjkTimedText(new Rect(0, 0, 1, 1), (String) msg.obj);
+                        player.notifyOnTimedText(text);
                     }
                     return;
                 case MEDIA_NOP: // interface test message - ignore
